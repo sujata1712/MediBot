@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>MediBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#0b0f14;--panel:#111720;--card:#161d28;--hover:#1c2535;--bd:#1f2d3d;--bdL:#253346;--ac:#2dd4bf;--acG:rgba(45,212,191,.15);--tx:#e8eef5;--tx2:#7a91a8;--mu:#4a6070;--red:#f87171;--gr:#34d399;--ub:#1a2e44}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdL);border-radius:99px}
+
+/* Layout */
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+#sb{width:268px;min-width:268px;background:var(--panel);border-right:1px solid var(--bd);display:flex;flex-direction:column;transition:width .25s,min-width .25s;overflow:hidden}
+#sb.off{width:0;min-width:0}
+.sb-head{padding:18px 14px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border:1px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo span{font-family:'Syne',sans-serif;font-weight:700;font-size:15px}
+.ib{background:none;border:none;cursor:pointer;color:var(--mu);display:flex;padding:4px;border-radius:6px}
+.ib:hover{color:var(--tx);background:var(--hover)}
+.sb-body{padding:10px 10px 0;display:flex;flex-direction:column;gap:8px}
+.btn-new{width:100%;padding:8px;border-radius:9px;cursor:pointer;background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border:1px solid var(--ac);color:var(--ac);font-family:'Syne',sans-serif;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+.btn-new:hover{background:linear-gradient(135deg,#2dd4bf28,#60a5fa28)}
+.sbox{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+.sbox input{background:none;border:none;outline:none;color:var(--tx);font-size:13px;font-family:'DM Sans';flex:1}
+.sbox input::placeholder{color:var(--mu)}
+.sbox svg{color:var(--mu);flex-shrink:0}
+#slist{flex:1;overflow-y:auto;padding:0 10px 8px}
+.si{display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:2px;border-radius:8px;cursor:pointer;border-left:2px solid transparent;transition:background .15s,border-color .15s}
+.si:hover{background:var(--hover)}
+.si.on{background:var(--hover);border-left-color:var(--ac)}
+.si svg{flex-shrink:0;color:var(--mu)}
+.si.on svg{color:var(--ac)}
+.si-info{flex:1;min-width:0}
+.si-title{font-size:13px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si.on .si-title{color:var(--tx);font-weight:500}
+.si-cnt{font-size:11px;color:var(--mu);margin-top:1px}
+.db{background:none;border:none;cursor:pointer;color:var(--mu);opacity:0;display:flex;padding:2px;border-radius:4px;flex-shrink:0}
+.si:hover .db{opacity:1}
+.db:hover{color:var(--red)}
+.no-sess{text-align:center;color:var(--mu);font-size:12px;padding:28px 8px;line-height:1.7}
+.sb-foot{padding:10px 10px 14px;border-top:1px solid var(--bd)}
+.btn-clr{width:100%;padding:7px;border-radius:7px;cursor:pointer;background:none;border:1px solid var(--bd);color:var(--mu);font-size:12px;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}
+.btn-clr:hover{border-color:var(--red);color:var(--red)}
+
+/* Sidebar toggle */
+#sbt{position:fixed;left:12px;top:16px;z-index:50;background:var(--panel);border:1px solid var(--bd);border-radius:8px;padding:6px 8px;cursor:pointer;color:var(--tx2);display:none}
+#sbt.show{display:flex}
+
+/* Main */
+#main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#topbar{height:58px;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;padding:0 20px}
+.dot{position:relative;display:flex}
+.dot::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--gr);display:block;position:relative;z-index:1}
+.dot::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--gr);animation:pulse 1.8s ease-out infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.4);opacity:0}}
+#tb-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;flex:1}
+#tb-sid{font-size:11px;color:var(--mu);font-family:monospace}
+
+/* Messages */
+#mwrap{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column}
+#msgs{max-width:740px;width:100%;margin:0 auto}
+
+/* Empty state */
+#empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;max-width:480px;margin:0 auto;width:100%}
+.e-icon{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#2dd4bf12,#60a5fa12);border:1px solid var(--bdL);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:22px;box-shadow:0 0 40px var(--acG)}
+.e-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;background:linear-gradient(135deg,#2dd4bf,#60a5fa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;margin-bottom:12px}
+.e-sub{color:var(--tx2);font-size:14px;line-height:1.65;margin-bottom:28px}
+.e-note{font-size:11px;color:var(--mu);line-height:1.6;border-top:1px solid var(--bd);padding-top:18px;width:100%}
+
+/* Bubbles */
+.msg{display:flex;gap:10px;margin-bottom:18px;animation:fu .3s ease}
+.msg.user{flex-direction:row-reverse}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid var(--bd)}
+.av.user{background:linear-gradient(135deg,#1a2e44,#1e3a5f);border-color:#253346}
+.av.bot{background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border-color:var(--ac)}
+.bub{max-width:78%;padding:11px 15px;font-size:14px;line-height:1.65;word-break:break-word}
+.bub.user{background:var(--ub);border:1px solid #253346;border-radius:14px 4px 14px 14px;white-space:pre-wrap}
+.bub.bot{background:var(--panel);border:1px solid var(--bd);border-radius:4px 14px 14px 14px}
+.bub.bot p{margin:.4em 0}.bub.bot ul,.bub.bot ol{padding-left:1.3em;margin:.4em 0}.bub.bot li{margin:.2em 0}
+.bub.bot strong{color:var(--ac);font-weight:600}.bub.bot code{background:var(--hover);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:.85em}
+.bub.bot hr{border:none;border-top:1px solid var(--bd);margin:.7em 0}
+.cur{display:inline-block;width:2px;height:14px;background:var(--ac);margin-left:2px;vertical-align:text-bottom;animation:blink .8s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.typing{display:flex;gap:5px;padding:4px 2px}
+.td{width:6px;height:6px;border-radius:50%;background:var(--ac);animation:bounce 1.2s infinite ease-in-out}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+
+/* Input */
+#iarea{flex-shrink:0;padding:10px 20px 18px;background:var(--bg);border-top:1px solid var(--bd)}
+.ibox{max-width:740px;margin:0 auto;background:var(--panel);border:1px solid var(--bd);border-radius:13px;display:flex;align-items:flex-end;gap:8px;padding:9px 13px;transition:border-color .2s}
+.ibox:focus-within{border-color:var(--bdL)}
+#ui{flex:1;background:none;border:none;outline:none;color:var(--tx);font-size:14px;font-family:'DM Sans';line-height:1.6;resize:none;min-height:24px;max-height:160px;overflow-y:auto}
+#ui::placeholder{color:var(--mu)}
+#send{width:34px;height:34px;flex-shrink:0;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+#send.on{background:linear-gradient(135deg,#2dd4bf,#60a5fa);color:#fff}
+#send.off{background:var(--hover);color:var(--mu);cursor:default}
+.hint{max-width:740px;margin:5px auto 0;text-align:center;font-size:11px;color:var(--mu)}
+.hint kbd{background:var(--card);border:1px solid var(--bd);border-radius:3px;padding:1px 4px;font-size:10px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- Sidebar -->
+<aside id="sb">
+  <div class="sb-head">
+    <div class="logo">
+      <div class="logo-icon">🩺</div>
+      <span>MediBot</span>
+    </div>
+    <button class="ib" onclick="toggleSb()" title="Collapse">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+  </div>
+  <div class="sb-body">
+    <button class="btn-new" onclick="newChat()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Chat
+    </button>
+    <div class="sbox">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search Chat…" oninput="searchChats(this.value)" />
+    </div>
+  </div>
+  <div id="slist"></div>
+  <div class="sb-foot">
+    <button class="btn-clr" onclick="clearAll()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      Clear all history
+    </button>
+  </div>
+</aside>
+
+<button id="sbt" onclick="toggleSb()">
+  <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+</button>
+
+<!-- Main -->
+<main id="main">
+  <div id="topbar">
+    <div class="dot"></div>
+    <div id="tb-title">MediBot — Medical Assistant</div>
+    <div id="tb-sid"></div>
+  </div>
+
+  <div id="mwrap">
+    <div id="msgs"></div>
+    <div id="empty">
+      <div class="e-icon">🩺</div>
+      <div class="e-title">How can I help you?</div>
+      <p class="e-sub">Describe your symptoms or ask any health question and I'll do my best to help.</p>
+      <p class="e-note">⚠️ MediBot provides general health info only. Always consult a licensed physician for diagnosis and treatment.</p>
+    </div>
+  </div>
+
+  <div id="iarea">
+    <div class="ibox">
+      <textarea id="ui" rows="1" placeholder="Describe your symptoms or ask a health question…"
+        oninput="resizeTa(this);updateBtn()" onkeydown="handleKey(event)"></textarea>
+      <button id="send" class="off" onclick="send()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div class="hint"><kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</div>
+  </div>
+</main>
+</div>
+
+<script>
+let sid=null, streaming=false, sessions=[];
+
+window.onload = async () => { await loadList(); };
+
+async function newChat() {
+  sid = (await (await fetch('/api/chat/new-session',{method:'POST'})).json()).session_id;
+  resetMsgs(); setTopbar('MediBot — Medical Assistant', ''); renderList();
+}
+
+async function loadList() { sessions = await (await fetch('/api/sessions/')).json(); renderList(); }
+
+function renderList(list=sessions) {
+  const el = document.getElementById('slist');
+  if (!list.length) { el.innerHTML='<div class="no-sess">No chats yet.<br>Start a new one above.</div>'; return; }
+  el.innerHTML = list.map(s=>`
+    <div class="si ${s.session_id===sid?'on':''}" onclick="loadChat('${s.session_id}','${esc(s.title)}')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <div class="si-info">
+        <div class="si-title">${esc(s.title)}</div>
+        <div class="si-cnt">${s.message_count} messages</div>
+      </div>
+      <button class="db" onclick="delChat(event,'${s.session_id}')">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+async function loadChat(id, title) {
+  sid=id; resetMsgs(); setTopbar(title, id);
+  const msgs = await (await fetch(`/api/sessions/${id}`)).json();
+  msgs.forEach(m => addMsg(m.role==='human'?'user':'bot', m.content));
+  renderList();
+}
+
+async function delChat(e, id) {
+  e.stopPropagation();
+  await fetch(`/api/sessions/${id}`,{method:'DELETE'});
+  sessions = sessions.filter(s=>s.session_id!==id);
+  if (id===sid) await newChat(); else renderList();
+}
+
+async function clearAll() {
+  if (!confirm('Delete ALL chat history?')) return;
+  await fetch('/api/sessions/',{method:'DELETE'});
+  sessions=[]; await newChat();
+}
+
+function searchChats(kw) {
+  const q=kw.trim().toLowerCase();
+  renderList(q ? sessions.filter(s=>s.title.toLowerCase().includes(q)) : sessions);
+}
+
+async function send() {
+  const inp=document.getElementById('ui'), txt=inp.value.trim();
+  if (!txt||streaming) return;
+  document.getElementById('empty')?.remove();
+  addMsg('user',txt); inp.value=''; resizeTa(inp); updateBtn();
+  const bub=addMsg('bot',null);
+  streaming=true; let full='', ev='message';
+  try {
+    const reader=(await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sid,message:txt})})).body.getReader();
+    const dec=new TextDecoder(); let buf='';
+    while(true){
+      const {done,value}=await reader.read(); if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n'); buf=lines.pop();
+      for(const l of lines){
+        if(l.startsWith('event: ')) ev=l.slice(7).trim();
+        else if(l.startsWith('data: ')){
+          const d=l.slice(6);
+          if(ev==='message'&&d!=='[DONE]'){full+=d;updBot(bub,full,true);}
+          else if(ev==='title'){setTopbar(d,sid);await loadList();renderList();}
+          ev='message';
+        }
+      }
+    }
+    updBot(bub,full,false);
+  } catch{ updBot(bub,'⚠️ Could not reach MediBot. Is the server running?',false); }
+  streaming=false; scroll();
+}
+
+function addMsg(role,content){
+  const wrap=document.getElementById('msgs');
+  const d=document.createElement('div'); d.className=`msg ${role}`;
+  const av=document.createElement('div'); av.className=`av ${role}`; av.textContent=role==='user'?'👤':'🤖';
+  const b=document.createElement('div'); b.className=`bub ${role}`;
+  if(content===null) b.innerHTML='<div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  else if(role==='user') b.textContent=content;
+  else b.innerHTML=mdRender(content);
+  d.append(av,b); wrap.appendChild(d); scroll(); return b;
+}
+
+function updBot(b,txt,cur){ b.innerHTML=mdRender(txt)+(cur?'<span class="cur"></span>':''); scroll(); }
+
+function resetMsgs(){
+  document.getElementById('msgs').innerHTML='';
+  let e=document.getElementById('empty');
+  if(!e){e=document.createElement('div');e.id='empty';document.getElementById('mwrap').appendChild(e);}
+  e.innerHTML=`<div class="e-icon">🩺</div><div class="e-title">How can I help you?</div><p class="e-sub">Describe your symptoms or ask any health question and I'll do my best to help.</p><p class="e-note">⚠️ MediBot provides general health info only. Always consult a licensed physician for diagnosis and treatment.</p>`;
+}
+
+function setTopbar(t,s){ document.getElementById('tb-title').textContent=t||'MediBot — Medical Assistant'; document.getElementById('tb-sid').textContent=s||''; }
+function scroll(){ const w=document.getElementById('mwrap'); w.scrollTop=w.scrollHeight; }
+function toggleSb(){ const s=document.getElementById('sb'),b=document.getElementById('sbt'); s.classList.toggle('off'); b.classList.toggle('show',s.classList.contains('off')); }
+function resizeTa(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,160)+'px'; }
+function updateBtn(){ document.getElementById('send').className=document.getElementById('ui').value.trim()&&!streaming?'on':'off'; }
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} }
+
+function mdRender(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/`(.+?)`/g,'<code>$1</code>').replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>')
+    .replace(/^---+$/gm,'<hr>').replace(/^[-*] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g,'<ul>$&</ul>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+}
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+</script>
+</body>
+</html>

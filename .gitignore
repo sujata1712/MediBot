@@ -1,0 +1,28 @@
+# ENVIRONMENT & SECRETS
+.env
+
+# UV / PYTHON
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# AUTO-GENERATED (rebuild with build_index.py)
+backend/data/processed/*
+
+# DATABASE (runtime, not for repo)
+backend/db/*
+
+# Keep folder structure via .gitkeep
+!backend/data/processed/.gitkeep
+!backend/db/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
