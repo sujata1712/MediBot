@@ -25,23 +25,23 @@ SQLite Memory       →  Remember full conversation history
 ## 🗂️ Project Structure
 
 ```
-MEDIBOT/
+MediBot/
 ├── backend/
 │   ├── data/
-│   │   ├── raw/               # Source medical PDF(s)
-│   │   ├── processed/         # Auto-generated chunks (not tracked)
-│   │   └── vector_store/      # FAISS index (pre-built, ready to use)
-│   ├── db/                    # SQLite chat history (runtime, not tracked)
-│   ├── src/
-│   │   ├── rag_pipeline.py    # RAG chain + Groq LLM setup
-│   │   ├── chat_history.py    # SQLite session management
-│   │   ├── build_index.py     # PDF → chunks → FAISS pipeline
-│   │   ├── prompts.py         # MediBot system prompt
-│   │   └── cli.py             # CLI chat interface
-│   └── config.py              # Paths and model configuration
+│   │   ├── raw/                    # Source medical PDF(s)
+│   │   ├── processed/              # Auto-generated chunks (not tracked)
+│   │   └── vector_store/           # FAISS index (pre-built, ready to use)
+│   ├── db/                         # SQLite chat history (runtime, not tracked)
+│   ├── services/
+│   │   ├── rag_pipeline.py         # RAG chain + Groq LLM setup
+│   │   ├── chat_history.py         # SQLite session management
+│   │   ├── build_index.py          # PDF → chunks → FAISS pipeline
+│   │   ├── prompts.py              # MediBot system prompt
+│   │   └── cli.py                  # CLI chat interface
+│   └── config.py                   # Paths and model configuration
 ├── frontend/
-│   └── index.html             # Web UI (in progress)
-├── .env.example               # Copy this → .env and add your keys
+│   └── index.html                  # Web UI (in progress)
+├── .env.example                    # Copy this → .env and add your keys
 ├── requirements.txt
 ├── pyproject.toml
 ├── uv.lock
@@ -54,8 +54,8 @@ MEDIBOT/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/medibot.git
-cd medibot
+git clone https://github.com/sujata1712/MediBot.git
+cd MediBot
 ```
 
 ### 2. Create a virtual environment
@@ -88,22 +88,24 @@ pip install -r requirements.txt
 ```bash
 copy .env.example .env
 ```
-Open `.env` and add your Groq API key:
+Open `.env` and add your API keys:
 ```
-GROQ_API_KEY=your_actual_key_here
+GROQ_API_KEY=your_groq_key_here
+HUGGINGFACE_API_TOKEN=your_huggingface_token_here
 ```
-> Get a free key at: https://console.groq.com
+> Get Groq key free at: https://console.groq.com  
+> Get HuggingFace token free at: https://huggingface.co/settings/tokens
 
 ### 5. Build the knowledge base
 ```bash
-python backend/src/build_index.py
+python backend/services/build_index.py
 ```
 > ⚠️ Only needed if you're using your own PDFs.  
 > The pre-built FAISS vector store is already included and ready to use.
 
 ### 6. Run MediBot (CLI)
 ```bash
-python backend/src/cli.py
+python backend/services/cli.py
 ```
 
 ---
