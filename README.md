@@ -26,20 +26,22 @@ SQLite Memory       →  Persist full conversation history
 MediBot/
 ├── backend/
 │   ├── data/
-│   │   ├── raw/               # Source medical PDF(s)
-│   │   ├── processed/         # Auto-generated chunks (not tracked)
-│   │   └── vector_store/      # FAISS index (pre-built, ready to use)
-│   ├── db/                    # SQLite chat history (runtime, not tracked)
-│   ├── src/
-│   │   ├── rag_pipeline.py    # RAG chain + Groq LLM setup
-│   │   ├── chat_history.py    # SQLite session management
-│   │   ├── build_index.py     # PDF → chunks → FAISS pipeline
-│   │   ├── prompts.py         # MediBot system prompt
-│   │   └── cli.py             # CLI chat interface
-│   └── config.py              # Paths and model configuration
+│   │   ├── raw/                    # Source medical PDFs (add your own)
+│   │   ├── processed/              # Auto-generated chunks (not tracked)
+│   │   └── vector_store/           # FAISS index (pre-built, ready to use)
+│   ├── db/                         # SQLite chat history (runtime, not tracked)
+│   ├── services/
+│   │   ├── build_index.py          # PDF → chunks → FAISS pipeline
+│   │   ├── chat_history.py         # SQLite session management
+│   │   ├── cli.py                  # CLI interface (text + voice + image)
+│   │   ├── media_handler.py        # Voice recording & image analysis (Groq)
+│   │   ├── prompts.py              # MediBot system prompt
+│   │   └── rag_pipeline.py         # RAG chain + Groq LLM setup
+│   └── config.py                   # Paths and model configuration
 ├── frontend/
-│   └── index.html             # Web UI (in progress)
-├── .env.example               # Copy this → .env and add your keys
+│   └── index.html                  # Web UI (SSE streaming, voice, image upload)
+├── main.py                         # FastAPI server (in progress)
+├── .env.example                    # Copy this → .env and add your keys
 ├── requirements.txt
 ├── pyproject.toml
 └── README.md
@@ -86,12 +88,15 @@ pip install -r requirements.txt      # using pip
 copy .env.example .env       # Windows
 cp .env.example .env         # Mac/Linux
 ```
-Open `.env` and add your Groq API key:
+
+Open `.env` and add your API keys:
 ```
 GROQ_API_KEY=your_groq_key_here
 HUGGINGFACE_API_TOKEN=your_huggingface_token_here
 ```
-> Get a free key at: https://console.groq.com
+
+> 🔑 Groq key (free): https://console.groq.com  
+> 🔑 HuggingFace token (free): https://huggingface.co/settings/tokens
 
 ### 5. Build the knowledge base *(skip if using pre-built FAISS index)*
 
