@@ -11,12 +11,14 @@ __pycache__/
 
 # AUTO-GENERATED (rebuild with build_index.py)
 backend/data/processed/*
+backend/data/vector_store/*
 
 # DATABASE (runtime, not for repo)
 backend/db/*
 
 # Keep folder structure via .gitkeep
 !backend/data/processed/.gitkeep
+!backend/data/vector_store/.gitkeep
 !backend/db/.gitkeep
 
 # IDE

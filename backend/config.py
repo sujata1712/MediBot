@@ -13,13 +13,20 @@ VECTOR_DB_PATH = os.path.join(DATA_DIR, "vector_store")
 CHUNKS_FILE_PATH = os.path.join(PROCESSED_DATA_PATH, "chunks.pkl")
 
 # ---------------------------- MODEL CONFIG ---------------------------
-# embedding model
+# Embedding Model
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 # LLM
 LLM_MODEL_NAME = "llama-3.1-8b-instant"
 LLM_TEMPERATURE = 0.5
 LLM_MAX_TOKENS = 1024
+
+# Vision Model
+VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+
+# Voice Model
+VOICE_MODEL = "whisper-large-v3"
+
 
 # ---------------------------- RETRIEVAL CONFIG ---------------------------
 RETRIEVAL_K = 5

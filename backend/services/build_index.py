@@ -9,6 +9,11 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BACKEND_DIR)
 
+# Load environment variables
+ROOT_DIR = os.path.dirname(BACKEND_DIR)   # MEDIBOT/
+from dotenv import load_dotenv
+load_dotenv(os.path.join(ROOT_DIR, ".env"))
+
 # Import Libraries
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter

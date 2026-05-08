@@ -1,13 +1,19 @@
 import os
+import sys
 import warnings
 
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BACKEND_DIR)
+
 ROOT_DIR = os.path.dirname(BACKEND_DIR)
+
+from dotenv import load_dotenv
+load_dotenv(os.path.join(ROOT_DIR, ".env"))
+
+if not os.getenv("GROQ_API_KEY"):
+    raise EnvironmentError("GROQ_API_KEY is missing. Add it to your .env file.")
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -15,24 +21,13 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from dotenv import load_dotenv
 
+from config import VECTOR_DB_PATH, EMBEDDING_MODEL_NAME, RETRIEVAL_K, LLM_MODEL_NAME, LLM_TEMPERATURE, LLM_MAX_TOKENS
 
-from config import (
-    VECTOR_DB_PATH, EMBEDDING_MODEL_NAME, RETRIEVAL_K,
-    LLM_MODEL_NAME, LLM_TEMPERATURE, LLM_MAX_TOKENS
-)
-from backend.services.chat_history import wrap_chain_with_history
-
+from chat_history import wrap_chain_with_history
 from prompts import MEDICAL_PROMPT
 
 warnings.filterwarnings("ignore")
-
-load_dotenv(os.path.join(ROOT_DIR, ".env"))
-
-if not os.getenv("GROQ_API_KEY"):
-    raise EnvironmentError("GROQ_API_KEY is missing. Add it to your .env file.")
-
 # --------------------------------------------- Load Components ---------------------------------------------
 # LLM
 llm = ChatGroq(
