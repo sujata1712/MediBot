@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MediBot — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0b0f14;--panel:#111720;--card:#161d28;--hover:#1c2535;--bd:#1f2d3d;--bdL:#253346;--ac:#2dd4bf;--acG:rgba(45,212,191,.15);--tx:#e8eef5;--tx2:#7a91a8;--mu:#4a6070;--red:#f87171;--gr:#34d399}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center}
+
+.card{background:var(--panel);border:1px solid var(--bd);border-radius:18px;padding:40px 38px;width:100%;max-width:370px;display:flex;flex-direction:column;align-items:center;box-shadow:0 0 60px rgba(45,212,191,.06);transition:min-height .3s}
+.logo{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border:1px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px;box-shadow:0 0 40px var(--acG)}
+h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,#2dd4bf,#60a5fa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px}
+.sub{font-size:13px;color:var(--tx2);margin-bottom:22px}
+
+/* tab toggle */
+.tabs{display:flex;width:100%;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:4px;margin-bottom:22px;gap:4px}
+.tab{flex:1;padding:8px;border:none;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .2s;background:transparent;color:var(--tx2)}
+.tab.active{background:linear-gradient(135deg,#2dd4bf22,#60a5fa22);color:var(--ac);border:1px solid var(--ac);}
+
+.field{width:100%;margin-bottom:13px}
+label{display:block;font-size:12px;color:var(--tx2);margin-bottom:5px;font-weight:500}
+input{width:100%;padding:10px 13px;background:var(--card);border:1px solid var(--bd);border-radius:9px;color:var(--tx);font-size:14px;font-family:'DM Sans';outline:none;transition:border-color .2s}
+input:focus{border-color:var(--ac)}
+input.invalid{border-color:var(--red)}
+input::placeholder{color:var(--mu)}
+
+/* password wrapper */
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:40px}
+.eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tx2);font-size:16px;line-height:1;padding:2px}
+.eye:hover{color:var(--ac)}
+
+.hint{font-size:11px;color:var(--mu);margin-top:3px}
+
+/* strength bar */
+.strength{display:flex;gap:4px;margin-top:6px}
+.strength span{flex:1;height:3px;border-radius:2px;background:var(--bd);transition:background .3s}
+.s1{background:var(--red)!important}
+.s2{background:#fb923c!important}
+.s3{background:#facc15!important}
+.s4{background:var(--gr)!important}
+
+.btn{width:100%;margin-top:4px;padding:11px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(135deg,#2dd4bf,#60a5fa);color:#0b0f14;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;transition:opacity .2s}
+.btn:hover{opacity:.88}
+.btn:disabled{opacity:.45;cursor:default}
+
+.msg{font-size:12px;margin-top:11px;min-height:16px;text-align:center}
+.msg.err{color:var(--red)}
+.msg.ok{color:var(--gr)}
+
+.note{font-size:11px;color:var(--mu);margin-top:18px;text-align:center;line-height:1.6}
+
+/* slide animation */
+.form-panel{width:100%;overflow:hidden}
+#signup-extra{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🩺</div>
+  <h1>MediBot</h1>
+  <p class="sub" id="sub-text">Sign in to continue</p>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-login"  onclick="switchTab('login')">Sign In</button>
+    <button class="tab"        id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+  </div>
+
+  <!-- Email (always visible) -->
+  <div class="field">
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="you@example.com" autocomplete="email"/>
+  </div>
+
+  <!-- Name — signup only -->
+  <div class="field form-panel" id="signup-extra">
+    <label for="uname">Full Name</label>
+    <input id="uname" type="text" placeholder="Your name" autocomplete="name"/>
+  </div>
+
+  <!-- Password -->
+  <div class="field">
+    <label for="pw">Password</label>
+    <div class="pw-wrap">
+      <input id="pw" type="password" placeholder="Enter password" autocomplete="current-password"
+             oninput="onPwInput()" onkeydown="if(event.key==='Enter')doSubmit()"/>
+      <button class="eye" onclick="togglePw('pw',this)" tabindex="-1">👁</button>
+    </div>
+    <!-- strength bar (signup only) -->
+    <div class="strength" id="strength-bar" style="display:none">
+      <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
+    </div>
+    <div class="hint" id="pw-hint" style="display:none">Min 8 chars, include a number or symbol</div>
+  </div>
+
+  <!-- Confirm password — signup only -->
+  <div class="field form-panel" id="confirm-wrap" style="display:none">
+    <label for="pw2">Confirm Password</label>
+    <div class="pw-wrap">
+      <input id="pw2" type="password" placeholder="Repeat password" autocomplete="new-password"
+             onkeydown="if(event.key==='Enter')doSubmit()"/>
+      <button class="eye" onclick="togglePw('pw2',this)" tabindex="-1">👁</button>
+    </div>
+  </div>
+
+  <button class="btn" id="btn" onclick="doSubmit()">Sign In</button>
+  <div class="msg err" id="msg"></div>
+  <p class="note">⚠️ MediBot provides general health info only.<br>Not a substitute for professional medical advice.</p>
+</div>
+
+<script>
+let mode = 'login'; // 'login' | 'signup'
+
+function switchTab(t){
+  mode = t;
+  document.getElementById('tab-login').classList.toggle('active', t==='login');
+  document.getElementById('tab-signup').classList.toggle('active', t==='signup');
+  document.getElementById('sub-text').textContent = t==='login' ? 'Sign in to continue' : 'Create your account';
+  document.getElementById('btn').textContent = t==='login' ? 'Sign In' : 'Sign Up';
+
+  const isSignup = t==='signup';
+  document.getElementById('signup-extra').style.display  = isSignup ? 'block' : 'none';
+  document.getElementById('confirm-wrap').style.display  = isSignup ? 'block' : 'none';
+  document.getElementById('strength-bar').style.display  = isSignup ? 'flex'  : 'none';
+  document.getElementById('pw-hint').style.display       = isSignup ? 'block' : 'none';
+  document.getElementById('pw').value  = '';
+  document.getElementById('pw2').value = '';
+  document.getElementById('msg').textContent = '';
+  document.getElementById('msg').className = 'msg err';
+  document.getElementById('email').classList.remove('invalid');
+  updateStrength('');
+}
+
+function togglePw(id, btn){
+  const el = document.getElementById(id);
+  if(el.type==='password'){el.type='text'; btn.textContent='🙈';}
+  else{el.type='password'; btn.textContent='👁';}
+}
+
+function onPwInput(){
+  if(mode==='signup') updateStrength(document.getElementById('pw').value);
+}
+
+function updateStrength(pw){
+  let score=0;
+  if(pw.length>=8) score++;
+  if(/[A-Z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^A-Za-z0-9]/.test(pw)) score++;
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById('s'+i);
+    el.className = i<=score ? 's'+score : '';
+  }
+}
+
+function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+async function doSubmit(){
+  const email = document.getElementById('email').value.trim();
+  const pw    = document.getElementById('pw').value;
+  const btn   = document.getElementById('btn');
+  const msg   = document.getElementById('msg');
+
+  msg.textContent=''; msg.className='msg err';
+  document.getElementById('email').classList.remove('invalid');
+
+  if(!validEmail(email)){
+    msg.textContent='Please enter a valid email address.';
+    document.getElementById('email').classList.add('invalid');
+    return;
+  }
+  if(!pw){ msg.textContent='Password is required.'; return; }
+
+  if(mode==='signup'){
+    const name = document.getElementById('uname').value.trim();
+    const pw2  = document.getElementById('pw2').value;
+    if(!name){ msg.textContent='Please enter your name.'; return; }
+    if(pw.length<8){ msg.textContent='Password must be at least 8 characters.'; return; }
+    if(pw!==pw2){ msg.textContent='Passwords do not match.'; return; }
+
+    btn.disabled=true; btn.textContent='Signing up…';
+    try{
+      const r = await fetch('/api/auth/signup',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email, password:pw, name})
+      });
+      const d = await r.json();
+      if(r.ok){ msg.className='msg ok'; msg.textContent='Account created! Signing you in…'; await autoLogin(email,pw); }
+      else{ msg.textContent = d.detail||'Sign up failed.'; }
+    }catch{ msg.textContent='Could not connect to server.'; }
+    btn.disabled=false; btn.textContent='Sign Up';
+
+  } else {
+    btn.disabled=true; btn.textContent='Signing in…';
+    try{
+      const r = await fetch('/api/auth/login',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({username:email, password:pw})
+      });
+      if(r.ok){ window.location.href='/'; }
+      else{ const d=await r.json(); msg.textContent=d.detail||'Login failed.'; }
+    }catch{ msg.textContent='Could not connect to server.'; }
+    btn.disabled=false; btn.textContent='Sign In';
+  }
+}
+
+async function autoLogin(email, pw){
+  try{
+    const r = await fetch('/api/auth/login',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username:email, password:pw})
+    });
+    if(r.ok) window.location.href='/';
+  }catch{}
+}
+
+// Already logged in? Go straight to app.
+fetch('/api/auth/me').then(r=>r.json()).then(d=>{ if(d.authenticated) window.location.href='/'; });
+</script>
+</body>
+</html>
