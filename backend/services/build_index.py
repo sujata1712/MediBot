@@ -6,11 +6,13 @@ import sys
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 # Add project root to PYTHONPATH
-BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SERVICES_DIR = os.path.dirname(os.path.abspath(__file__))       # SERVICES_DIR = backend/services/
+BACKEND_DIR  = os.path.dirname(SERVICES_DIR)                    # BACKEND_DIR  = backend/
+ROOT_DIR     = os.path.dirname(BACKEND_DIR)                     # ROOT_DIR     = MEDIBOT/ (where .env lives)
+
 sys.path.insert(0, BACKEND_DIR)
 
 # Load environment variables
-ROOT_DIR = os.path.dirname(BACKEND_DIR)   # MEDIBOT/
 from dotenv import load_dotenv
 load_dotenv(os.path.join(ROOT_DIR, ".env"))
 

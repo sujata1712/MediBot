@@ -9,13 +9,16 @@ import scipy.io.wavfile as wav
 from groq import Groq
 from dotenv import load_dotenv
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+SERVICES_DIR = os.path.dirname(os.path.abspath(__file__))       # SERVICES_DIR = backend/services/
+BACKEND_DIR  = os.path.dirname(SERVICES_DIR)                    # BACKEND_DIR  = backend/
+ROOT_DIR     = os.path.dirname(BACKEND_DIR)                     # ROOT_DIR     = project root (where .env lives)
+
 load_dotenv(os.path.join(ROOT_DIR, ".env"))
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, BACKEND_DIR)
 
 from config import VISION_MODEL, VOICE_MODEL
-from prompts import VISION_PROMPT
+from services.prompts import VISION_PROMPT
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
@@ -50,14 +53,17 @@ def record_audio_from_mic(duration: int = 5) -> bytes:
 
 def transcribe_audio(audio_bytes: bytes, filename: str = "audio.wav") -> str:
     """Convert audio bytes → text using Groq Whisper."""
-    transcription = client.audio.transcriptions.create(
-        model = VOICE_MODEL,
-        file = (filename, audio_bytes),
-        language="en",
-        response_format = "text",
-    )
-    return transcription.strip()
-
+    try:
+        transcription = client.audio.transcriptions.create(
+            model = VOICE_MODEL,
+            file = (filename, audio_bytes),
+            language="en",
+            response_format = "text",
+        )
+        return transcription.strip()
+    except Exception as e:
+        print(f"Error during transcription: {e}")
+        return ""
 
 # --------------------------------------------- Image Handler — Vision-to-text ---------------------------------------------
 
@@ -68,17 +74,21 @@ def analyze_image(image_bytes: bytes, user_query: str = "") -> str:
     image_b64 = base64.b64encode(image_bytes).decode('utf-8')
 
     # Call the Groq API to analyze the image
-    response = client.chat.completions.create(
-        model=VISION_MODEL,
-        messages=[
-            {"role": "system", "content": VISION_PROMPT},
-            {"role": "user", "content": [
-                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}},
-                {"type": "text",      "text": user_query or "Describe this medical image."},
-            ]},
-        ],
-        max_tokens=512,
-        temperature=0.5,
-    )
+    try:
+        response = client.chat.completions.create(
+            model=VISION_MODEL,
+            messages=[
+                {"role": "system", "content": VISION_PROMPT},
+                {"role": "user", "content": [
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}},
+                    {"type": "text",      "text": user_query or "Describe this medical image."},
+                ]},
+            ],
+            max_tokens=512,
+            temperature=0.5,
+        )
 
-    return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error during image analysis: {e}")
+        return "Sorry, I couldn't analyze the image."

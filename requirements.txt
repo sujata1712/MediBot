@@ -1,37 +1,44 @@
-# LangChain Core (v1.2+ - All compatible versions)
-langchain==1.2.8
-langchain-core==1.2.8
-langchain-community==0.4.1
-langchain-text-splitters==1.1.0
-langchain-experimental==0.4.1
+# LangChain Core
+langchain==0.3.25
+langchain-core==0.3.60
+langchain-community==0.3.24
+langchain-text-splitters==0.3.8
+langchain-experimental==0.3.4
 
 # LangChain Integrations
-langchain-groq==1.1.2
-langchain-huggingface==1.2.0
+langchain-groq==0.3.2
+langchain-huggingface==0.1.2
 
 # Vector Store
-faiss-cpu>=1.13.2
+faiss-cpu>=1.9.0
 
 # Embeddings & LLM
-sentence-transformers>=5.2.2
-torch>=2.10.0
-transformers>=4.57.6
+sentence-transformers>=3.4.1
+torch>=2.2.0
+transformers>=4.47.0
 
 # HuggingFace Integration
-huggingface-hub>=0.36.1
-accelerate>=1.12.0
+huggingface-hub>=0.27.0
+accelerate>=1.3.0
+
+# Groq SDK (required by media_handler.py)
+groq>=0.13.0
 
 # Document Processing
-pypdf>=6.6.2
-PyMuPDF>=1.26.7
-# tiktoken>=0.12.0
+pypdf>=5.1.0
 
-sqlalchemy
+# Database
+sqlalchemy>=2.0.0
 
 # Configuration & Utils
-python-dotenv>=1.2.1
-pydantic>=2.12.5
+python-dotenv>=1.0.1
+pydantic>=2.10.0
 
-# sound and vision
-sounddevice
-scipy
+# Audio & Vision
+sounddevice>=0.5.1
+scipy>=1.14.0
+
+# FastAPI Backend
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+python-multipart>=0.0.20

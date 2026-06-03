@@ -5,27 +5,20 @@
 <title>MediBot</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-/* ── Design Tokens ── */
 :root{--bg:#0b0f14;--panel:#111720;--card:#161d28;--hover:#1c2535;--bd:#1f2d3d;--bdL:#253346;--ac:#2dd4bf;--acG:rgba(45,212,191,.15);--tx:#e8eef5;--tx2:#7a91a8;--mu:#4a6070;--red:#f87171;--gr:#34d399;--ub:#1a2e44}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bdL);border-radius:99px}
 #app{display:flex;height:100vh;overflow:hidden}
-
-/* ── Sidebar: collapsible chat history panel ── */
 #sb{width:268px;min-width:268px;background:var(--panel);border-right:1px solid var(--bd);display:flex;flex-direction:column;transition:width .25s,min-width .25s;overflow:hidden}
 #sb.off{width:0;min-width:0}
 .sb-head{padding:18px 14px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:center;gap:9px}
-.logo-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border:1px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:15px}
-.logo span{font-family:'Syne',sans-serif;font-weight:700;font-size:15px}
+.logo{display:flex;align-items:center;gap:9px}.logo-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border:1px solid var(--ac);display:flex;align-items:center;justify-content:center;font-size:15px}.logo span{font-family:'Syne',sans-serif;font-weight:700;font-size:15px}
 .ib{background:none;border:none;cursor:pointer;color:var(--mu);display:flex;padding:4px;border-radius:6px}.ib:hover{color:var(--tx);background:var(--hover)}
-.btn-new{width:100%;padding:8px;border-radius:9px;cursor:pointer;background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border:1px solid var(--ac);color:var(--ac);font-family:'Syne',sans-serif;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}.btn-new:hover{background:linear-gradient(135deg,#2dd4bf28,#60a5fa28)}
 .sb-body{padding:10px 10px 0;display:flex;flex-direction:column;gap:8px}
-.sbox{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
-.sbox input{background:none;border:none;outline:none;color:var(--tx);font-size:13px;font-family:'DM Sans';flex:1}.sbox input::placeholder{color:var(--mu)}
+.btn-new{width:100%;padding:8px;border-radius:9px;cursor:pointer;background:linear-gradient(135deg,#2dd4bf18,#60a5fa18);border:1px solid var(--ac);color:var(--ac);font-family:'Syne',sans-serif;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}.btn-new:hover{background:linear-gradient(135deg,#2dd4bf28,#60a5fa28)}
+.sbox{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}.sbox input{background:none;border:none;outline:none;color:var(--tx);font-size:13px;font-family:'DM Sans';flex:1}.sbox input::placeholder{color:var(--mu)}
 #slist{flex:1;overflow-y:auto;padding:0 10px 8px}
-/* Session list item: highlights active, shows delete on hover */
 .si{display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:2px;border-radius:8px;cursor:pointer;border-left:2px solid transparent;transition:background .15s,border-color .15s}.si:hover{background:var(--hover)}.si.on{background:var(--hover);border-left-color:var(--ac)}
 .si svg{flex-shrink:0;color:var(--mu)}.si.on svg{color:var(--ac)}
 .si-info{flex:1;min-width:0}.si-title{font-size:13px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.si.on .si-title{color:var(--tx);font-weight:500}.si-cnt{font-size:11px;color:var(--mu);margin-top:1px}
@@ -33,25 +26,18 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .no-sess{text-align:center;color:var(--mu);font-size:12px;padding:28px 8px;line-height:1.7}
 .sb-foot{padding:10px 10px 14px;border-top:1px solid var(--bd)}
 .btn-clr{width:100%;padding:7px;border-radius:7px;cursor:pointer;background:none;border:1px solid var(--bd);color:var(--mu);font-size:12px;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s}.btn-clr:hover{border-color:var(--red);color:var(--red)}
-/* Toggle button shown when sidebar is collapsed */
 #sbt{position:fixed;left:12px;top:16px;z-index:50;background:var(--panel);border:1px solid var(--bd);border-radius:8px;padding:6px 8px;cursor:pointer;color:var(--tx2);display:none}#sbt.show{display:flex}
-
-/* ── Main chat area ── */
 #main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 #topbar{height:58px;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;padding:0 20px}
-/* Animated live-status dot */
 .dot{position:relative;display:flex}.dot::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--gr);display:block;z-index:1}.dot::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--gr);animation:pulse 1.8s ease-out infinite}
 @keyframes pulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.4);opacity:0}}
-#tb-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;flex:1}#tb-sid{font-size:11px;color:var(--mu);font-family:monospace}
+#tb-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;flex:1}
 #mwrap{flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column}
 #msgs{max-width:740px;width:100%;margin:0 auto}
-/* Empty welcome state shown before first message */
 #empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;max-width:480px;margin:0 auto;width:100%}
 .e-icon{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#2dd4bf12,#60a5fa12);border:1px solid var(--bdL);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:22px;box-shadow:0 0 40px var(--acG)}
 .e-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;background:linear-gradient(135deg,#2dd4bf,#60a5fa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
 .e-sub{color:var(--tx2);font-size:14px;line-height:1.65;margin-bottom:28px}.e-note{font-size:11px;color:var(--mu);line-height:1.6;border-top:1px solid var(--bd);padding-top:18px;width:100%}
-
-/* ── Chat bubbles ── */
 .msg{display:flex;gap:10px;margin-bottom:18px;animation:fu .3s ease}.msg.user{flex-direction:row-reverse}
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid var(--bd)}
@@ -61,46 +47,35 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .bub.bot{background:var(--panel);border:1px solid var(--bd);border-radius:4px 14px 14px 14px}
 .bub.bot p{margin:.4em 0}.bub.bot ul,.bub.bot ol{padding-left:1.3em;margin:.4em 0}.bub.bot li{margin:.2em 0}
 .bub.bot strong{color:var(--ac);font-weight:600}.bub.bot code{background:var(--hover);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:.85em}.bub.bot hr{border:none;border-top:1px solid var(--bd);margin:.7em 0}
-/* Blinking cursor shown during SSE streaming */
 .cur{display:inline-block;width:2px;height:14px;background:var(--ac);margin-left:2px;vertical-align:text-bottom;animation:blink .8s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .typing{display:flex;gap:5px;padding:4px 2px}.td{width:6px;height:6px;border-radius:50%;background:var(--ac);animation:bounce 1.2s infinite ease-in-out}.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
 .img-preview{max-width:200px;border-radius:8px;border:1px solid var(--bdL);margin-bottom:5px;display:block}
-
-/* ── Input area ── */
 #iarea{flex-shrink:0;padding:10px 20px 18px;background:var(--bg);border-top:1px solid var(--bd)}
 .ibox{max-width:740px;margin:0 auto;background:var(--panel);border:1px solid var(--bd);border-radius:13px;overflow:hidden;transition:border-color .2s}.ibox:focus-within{border-color:var(--bdL)}
-/* Image attachment strip (hidden until image is selected) */
 #img-strip{display:none;align-items:center;gap:8px;padding:8px 13px;border-bottom:1px solid var(--bd)}#img-strip.on{display:flex}
 .thumb-wrap{position:relative}.thumb{width:44px;height:44px;border-radius:7px;object-fit:cover;border:1px solid var(--bdL)}
 .rm{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--red);border:none;cursor:pointer;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center}
-#img-q{display:none;padding:4px 13px}#img-q.on{display:block}
-#img-q input{width:100%;background:none;border:none;outline:none;color:var(--tx2);font-size:12px;font-family:'DM Sans'}#img-q input::placeholder{color:var(--mu)}
 .irow{display:flex;align-items:flex-end;gap:8px;padding:9px 13px}
 #ui{flex:1;background:none;border:none;outline:none;color:var(--tx);font-size:14px;font-family:'DM Sans';line-height:1.6;resize:none;min-height:24px;max-height:160px;overflow-y:auto}#ui::placeholder{color:var(--mu)}
 .btns{display:flex;gap:6px;align-items:center}
-/* Shared icon button base */
 .icob{width:34px;height:34px;border-radius:8px;border:1px solid var(--bd);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mu);transition:all .2s;flex-shrink:0;position:relative}
-/* Voice button: purple hover, red pulsing ring when recording */
 #vbtn:hover{border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.1)}#vbtn.rec{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.1);animation:vpulse .9s ease-in-out infinite}
 @keyframes vpulse{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,.3)}50%{box-shadow:0 0 0 5px rgba(248,113,113,0)}}
 .ring{display:none;position:absolute;inset:-3px;border-radius:11px;border:1.5px solid var(--red);animation:rpulse .9s ease-out infinite;pointer-events:none}#vbtn.rec .ring{display:block}
 @keyframes rpulse{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.4)}}
 #ibtn:hover{border-color:#60a5fa;color:#60a5fa;background:rgba(96,165,250,.1)}#ibtn.on{border-color:#60a5fa;color:#60a5fa;background:rgba(96,165,250,.12)}
-/* Send button: teal gradient when active, muted when disabled */
 #send{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}#send.on{background:linear-gradient(135deg,#2dd4bf,#60a5fa);color:#fff}#send.off{background:var(--hover);color:var(--mu);cursor:default}
 .hint{max-width:740px;margin:5px auto 0;text-align:center;font-size:11px;color:var(--mu)}.hint kbd{background:var(--card);border:1px solid var(--bd);border-radius:3px;padding:1px 4px;font-size:10px}
-
-/* ── Voice recording modal (5-second countdown) ── */
 #vmodal{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(6px)}#vmodal.on{display:flex}
 .vm{background:var(--panel);border:1px solid var(--bd);border-radius:18px;padding:36px 40px;text-align:center;width:290px;animation:fu .25s ease}
 .vm-mic{width:72px;height:72px;border-radius:50%;background:rgba(248,113,113,.1);border:2px solid var(--red);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;animation:vpulse 1s ease-in-out infinite}
 .vm h3{font-family:'Syne',sans-serif;font-size:16px;margin-bottom:4px}.vm p{font-size:13px;color:var(--tx2);margin-bottom:8px}.vm-t{font-size:30px;font-family:monospace;color:var(--red);font-weight:700;margin-bottom:18px;letter-spacing:2px}
-.bars{display:flex;gap:3px;justify-content:center;margin-bottom:22px;height:26px;align-items:flex-end}
-.bar{width:5px;border-radius:3px;background:var(--red);animation:bar .7s ease-in-out infinite alternate}.bar:nth-child(1){animation-delay:0s}.bar:nth-child(2){animation-delay:.1s}.bar:nth-child(3){animation-delay:.2s}.bar:nth-child(4){animation-delay:.3s}.bar:nth-child(5){animation-delay:.4s}.bar:nth-child(6){animation-delay:.5s}.bar:nth-child(7){animation-delay:.6s}
+.bars{display:flex;gap:3px;justify-content:center;margin-bottom:22px;height:26px;align-items:flex-end}.bar{width:5px;border-radius:3px;background:var(--red);animation:bar .7s ease-in-out infinite alternate}.bar:nth-child(1){animation-delay:0s}.bar:nth-child(2){animation-delay:.1s}.bar:nth-child(3){animation-delay:.2s}.bar:nth-child(4){animation-delay:.3s}.bar:nth-child(5){animation-delay:.4s}.bar:nth-child(6){animation-delay:.5s}.bar:nth-child(7){animation-delay:.6s}
 @keyframes bar{from{height:4px;opacity:.4}to{height:22px;opacity:1}}
 .vm-stop{width:100%;padding:10px;border-radius:9px;background:var(--red);border:none;cursor:pointer;color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:700}.vm-stop:hover{opacity:.85}
+
 </style>
 </head>
 <body>
@@ -119,12 +94,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 </aside>
 <button id="sbt" onclick="toggleSb()"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
 <main id="main">
-  <div id="topbar"><div class="dot"></div><div id="tb-title">MediBot — Medical Assistant</div><div id="tb-sid"></div></div>
+  <div id="topbar"><div class="dot"></div><div id="tb-title">MediBot — Medical Assistant</div><button onclick="doLogout()" style="margin-left:auto;background:none;border:1px solid var(--bd);border-radius:7px;color:var(--mu);font-size:12px;font-family:'DM Sans';padding:5px 12px;cursor:pointer;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)';" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--mu)';">Sign out</button></div>
   <div id="mwrap"><div id="msgs"></div><div id="empty"></div></div>
   <div id="iarea">
     <div class="ibox">
       <div id="img-strip"><div class="thumb-wrap"><img id="thumb" class="thumb" src="" alt=""/><button class="rm" onclick="clearImg()">✕</button></div><span style="font-size:12px;color:var(--tx2)">Image attached</span></div>
-      <div id="img-q"><input id="iq" type="text" placeholder="Ask something about this image… (optional)"/></div>
       <div class="irow">
         <textarea id="ui" rows="1" placeholder="Describe your symptoms or ask a health question…" oninput="resizeTa(this);updateBtn()" onkeydown="handleKey(event)"></textarea>
         <div class="btns">
@@ -140,96 +114,237 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 </main>
 </div>
 <div id="vmodal">
-  <div class="vm"><div class="vm-mic">🎙️</div><h3>Listening…</h3><p>Speak your question clearly</p><div class="vm-t" id="vt">0:05</div><div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><button class="vm-stop" onclick="stopVoice()">Stop Recording</button></div>
+  <div class="vm"><div class="vm-mic">🎙️</div><h3>Listening…</h3><p>Speak clearly — stops automatically when you pause</p><div class="vm-t" id="vt">0:00</div><div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><button class="vm-stop" onclick="stopVoice()">Stop Recording</button></div>
 </div>
 <script>
-/* ── State ── */
-let sid=null, streaming=false, sessions=[], rec=null, chunks=[], timer=null, secs=0, imgB64=null;
 
-/* ── Init: load history then open a fresh chat ── */
-window.onload = async () => { await loadList(); await newChat(); };
+let sid=null,streaming=false,sessions=[],rec=null,chunks=[],timer=null,secs=0,imgB64=null;
+let audioCtx=null,analyser=null,animFrame=null;
+const SILENCE_THRESHOLD=0.01,SILENCE_MS=2000;
 
-/* ── Session management ── */
-/** POST /api/chat/new-session → creates server-side session, resets UI */
-async function newChat(){sid=(await(await fetch('/api/chat/new-session',{method:'POST'})).json()).session_id;resetMsgs();setTop('MediBot — Medical Assistant','');renderList();}
-/** GET /api/sessions/ → populates sidebar session list */
-async function loadList(){sessions=await(await fetch('/api/sessions/')).json();renderList();}
-/** Render sidebar items; highlights active session, supports filtered subset */
-function renderList(list=sessions){const el=document.getElementById('slist');if(!list.length){el.innerHTML='<div class="no-sess">No chats yet.<br>Start a new one above.</div>';return;}el.innerHTML=list.map(s=>`<div class="si ${s.session_id===sid?'on':''}" onclick="loadChat('${s.session_id}','${esc(s.title)}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div class="si-info"><div class="si-title">${esc(s.title)}</div><div class="si-cnt">${s.message_count} messages</div></div><button class="db" onclick="del(event,'${s.session_id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div>`).join('');}
-/** Load a past session: fetch message history and replay into chat UI */
-async function loadChat(id,title){sid=id;resetMsgs();setTop(title,id);(await(await fetch(`/api/sessions/${id}`)).json()).forEach(m=>addMsg(m.role==='human'?'user':'bot',m.content));renderList();}
-/** DELETE /api/sessions/:id → remove session; if active, open new chat */
-async function del(e,id){e.stopPropagation();await fetch(`/api/sessions/${id}`,{method:'DELETE'});sessions=sessions.filter(s=>s.session_id!==id);id===sid?await newChat():renderList();}
-async function clearAll(){if(!confirm('Delete ALL chat history?'))return;await fetch('/api/sessions/',{method:'DELETE'});sessions=[];await newChat();}
-function filterList(kw){const q=kw.trim().toLowerCase();renderList(q?sessions.filter(s=>s.title.toLowerCase().includes(q)):sessions);}
+const $=id=>document.getElementById(id);
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const toast=msg=>{const t=document.createElement('div');t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1c2535;border:1px solid #253346;color:#e8eef5;padding:8px 16px;border-radius:8px;font-size:13px;z-index:200';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);};
+const scroll=()=>{const w=$('mwrap');w.scrollTop=w.scrollHeight;};
+const setTop=t=>{$('tb-title').textContent=t||'MediBot — Medical Assistant';};
+const resizeTa=el=>{el.style.height='auto';el.style.height=Math.min(el.scrollHeight,160)+'px';};
+const updateBtn=()=>{$('send').className=(($('ui').value.trim()||imgB64)&&!streaming)?'on':'off';};
+const handleKey=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
+const toggleSb=()=>{const s=$('sb'),b=$('sbt');s.classList.toggle('off');b.classList.toggle('show',s.classList.contains('off'));};
+const doLogout=async()=>{await fetch('/api/auth/logout',{method:'POST'});window.location.href='/login';};
 
-/* ── Streaming send ── */
-/** POST /api/chat/stream → SSE stream; handles 'message' tokens and 'title' events */
+window.onload=async()=>{
+  const a=await(await fetch('/api/auth/me')).json();
+  if(!a.authenticated){window.location.href='/login';return;}
+  await loadList();
+  await newChat();
+};
+
+/* ── Sessions ── */
+async function loadList(){
+  try{sessions=await(await fetch('/api/sessions/')).json();}
+  catch{sessions=[];}
+  renderList();
+}
+
+function renderList(list=sessions){
+  const el=$('slist');
+  if(!list.length){el.innerHTML='<div class="no-sess">No chats yet.<br>Start a new one above.</div>';el.onclick=null;return;}
+  el.innerHTML=list.map(s=>`<div class="si${s.session_id===sid?' on':''}" data-sid="${esc(s.session_id)}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div class="si-info"><div class="si-title">${esc(s.title)}</div><div class="si-cnt">${s.message_count} msg${s.message_count!==1?'s':''}</div></div><button class="db" data-del="${esc(s.session_id)}" title="Delete"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div>`).join('');
+  el.onclick=async e=>{
+    const d=e.target.closest('[data-del]');
+    if(d){e.stopPropagation();await delSession(d.dataset.del);return;}
+    const s=e.target.closest('[data-sid]');
+    if(s&&s.dataset.sid!==sid) await loadChat(s.dataset.sid);
+  };
+}
+
+async function newChat(){
+  sid=(await(await fetch('/api/chat/new-session',{method:'POST'})).json()).session_id;
+  resetMsgs();setTop();renderList();
+}
+
+async function loadChat(id){
+  sid=id;resetMsgs(false);
+  const meta=sessions.find(s=>s.session_id===id);
+  setTop(meta?.title);renderList();
+  try{
+    const msgs=await(await fetch(`/api/sessions/${id}`)).json();
+    if(!Array.isArray(msgs)||!msgs.length)return;
+    $('empty')?.remove();
+    msgs.forEach(m=>addMsg(m.role==='human'?'user':'bot',m.content));
+    scroll();
+  }catch{toast('Could not load chat history.');}
+}
+
+async function delSession(id){
+  try{
+    const r=await fetch(`/api/sessions/${id}`,{method:'DELETE'});
+    if(!r.ok)throw new Error();
+    sessions=sessions.filter(s=>s.session_id!==id);
+    if(id===sid) await newChat(); else renderList();
+  }catch{toast('Could not delete chat.');}
+}
+
+async function clearAll(){
+  if(!confirm('Delete ALL chat history? This cannot be undone.'))return;
+  try{
+    await fetch('/api/sessions/',{method:'DELETE'});
+    sessions=[];await newChat();
+  }catch{toast('Could not clear history.');}
+}
+
+const filterList=kw=>{const q=kw.trim().toLowerCase();renderList(q?sessions.filter(s=>s.title.toLowerCase().includes(q)):sessions);};
+
+/* ── Streaming ── */
 async function send(){
-  const inp=document.getElementById('ui'),txt=inp.value.trim();
+  const inp=$('ui'),txt=inp.value.trim();
   if((!txt&&!imgB64)||streaming)return;
-  document.getElementById('empty')?.remove();
-  streaming=true;
-  imgB64?addImgMsg(imgB64,txt):addMsg('user',txt);
+  $('empty')?.remove();streaming=true;
+  const capturedImg=imgB64;
+  capturedImg?addImgMsg(capturedImg,txt):addMsg('user',txt);
   inp.value='';resizeTa(inp);updateBtn();
   const body={session_id:sid,message:txt};
-  if(imgB64){body.image_b64=imgB64;body.image_question=document.getElementById('iq').value.trim();}
+  if(capturedImg){
+    body.image_b64=capturedImg;
+    body.image_question=txt||'Describe this medical image.';
+    const thumb=await resizeImgForStorage(capturedImg);
+    body.message='[IMG:'+thumb+']'+(txt?'\n'+txt:'');
+    body.display_message='[IMG:'+thumb+']'+(txt?'\n'+txt:'');
+  }
   clearImg();
   const bub=addMsg('bot',null);let full='',ev='message';
   try{
     const reader=(await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).body.getReader();
     const dec=new TextDecoder();let buf='';
-    while(true){const{done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();for(const l of lines){if(l.startsWith('event: '))ev=l.slice(7).trim();else if(l.startsWith('data: ')){const d=l.slice(6);if(ev==='message'&&d!=='[DONE]'){full+=d;updBot(bub,full,true);}else if(ev==='title'){setTop(d,sid);await loadList();renderList();}ev='message';}}}
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const l of lines){
+        if(l.startsWith('event: '))ev=l.slice(7).trim();
+        else if(l.startsWith('data: ')){
+          const d=l.slice(6);
+          if(ev==='message'&&d!=='[DONE]'){full+=d.replace(/\\n/g,'\n');updBot(bub,full,true);}
+          else if(ev==='title'){setTop(d);await loadList();}
+          ev='message';
+        }
+      }
+    }
     updBot(bub,full,false);
-  }catch{updBot(bub,'⚠️ Could not reach MediBot. Is the server running?',false);}
+  }catch{updBot(bub,'⚠️ Could not reach MediBot.',false);}
   streaming=false;scroll();
 }
 
-/* ── Voice input (MediaRecorder → /api/transcribe) ── */
-/** Request mic, record up to 5 s, auto-stop on countdown; result fills textarea */
+/* ── Voice ── */
 async function toggleVoice(){
   if(rec&&rec.state==='recording'){stopVoice();return;}
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
     chunks=[];rec=new MediaRecorder(stream);
     rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
-    rec.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());await processAudio();};
-    rec.start();
-    document.getElementById('vbtn').classList.add('rec');document.getElementById('vmodal').classList.add('on');
-    secs=5;updTimer();timer=setInterval(()=>{secs--;updTimer();if(secs<=0)stopVoice();},1000);
+    rec.onstop=async()=>{cancelAnimationFrame(animFrame);if(audioCtx){audioCtx.close();audioCtx=null;}stream.getTracks().forEach(t=>t.stop());await processAudio();};
+    rec.start(100);
+    audioCtx=new AudioContext();analyser=audioCtx.createAnalyser();analyser.fftSize=512;
+    audioCtx.createMediaStreamSource(stream).connect(analyser);
+    const buf=new Float32Array(analyser.fftSize);let lastSpeech=Date.now();
+    const detect=()=>{analyser.getFloatTimeDomainData(buf);const rms=Math.sqrt(buf.reduce((s,v)=>s+v*v,0)/buf.length);if(rms>SILENCE_THRESHOLD)lastSpeech=Date.now();if(Date.now()-lastSpeech>SILENCE_MS)stopVoice();else animFrame=requestAnimationFrame(detect);};
+    animFrame=requestAnimationFrame(detect);
+    $('vbtn').classList.add('rec');$('vmodal').classList.add('on');
+    secs=0;updTimer();timer=setInterval(()=>{secs++;updTimer();},1000);
   }catch{alert('Microphone access denied.');}
 }
-function stopVoice(){clearInterval(timer);document.getElementById('vmodal').classList.remove('on');document.getElementById('vbtn').classList.remove('rec');if(rec&&rec.state==='recording')rec.stop();}
-function updTimer(){document.getElementById('vt').textContent=`0:${String(Math.max(0,secs)).padStart(2,'0')}`;}
-/** POST /api/transcribe with webm blob → inserts transcribed text into input */
-async function processAudio(){const blob=new Blob(chunks,{type:'audio/webm'});const form=new FormData();form.append('audio',blob,'rec.webm');try{const r=await(await fetch('/api/transcribe',{method:'POST',body:form})).json();if(r.text?.trim()){document.getElementById('ui').value=r.text.trim();resizeTa(document.getElementById('ui'));updateBtn();}else toast('No speech detected.');}catch{toast('Transcription failed. Is the server running?');}}
+function stopVoice(){clearInterval(timer);cancelAnimationFrame(animFrame);$('vmodal').classList.remove('on');$('vbtn').classList.remove('rec');if(rec&&rec.state==='recording')rec.stop();}
+function updTimer(){const m=Math.floor(secs/60),s=secs%60;$('vt').textContent=`${m}:${String(s).padStart(2,'0')}`;}
+async function processAudio(){
+  const form=new FormData();form.append('audio',new Blob(chunks,{type:'audio/webm'}),'rec.webm');
+  try{const r=await(await fetch('/api/transcribe',{method:'POST',body:form})).json();if(r.text?.trim()){$('ui').value=r.text.trim();resizeTa($('ui'));updateBtn();}else toast('No speech detected.');}
+  catch{toast('Transcription failed.');}
+}
 
-/* ── Image attachment ── */
-/** FileReader → base64; shows thumbnail strip and optional caption input */
-function onImgSelect(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{imgB64=ev.target.result;document.getElementById('thumb').src=imgB64;['img-strip','img-q'].forEach(id=>document.getElementById(id).classList.add('on'));document.getElementById('ibtn').classList.add('on');updateBtn();};r.readAsDataURL(file);e.target.value='';}
-function clearImg(){imgB64=null;document.getElementById('thumb').src='';['img-strip','img-q'].forEach(id=>document.getElementById(id).classList.remove('on'));document.getElementById('ibtn').classList.remove('on');document.getElementById('iq').value='';updateBtn();}
+/* ── Image ── */
+function resizeImgForStorage(b64,maxPx=200){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const scale=Math.min(1,maxPx/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');
+      c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      res(c.toDataURL('image/jpeg',0.7));
+    };
+    img.src=b64;
+  });
+}
+function onImgSelect(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{imgB64=ev.target.result;$('thumb').src=imgB64;$('img-strip').classList.add('on');$('ibtn').classList.add('on');updateBtn();};r.readAsDataURL(file);e.target.value='';}
+function clearImg(){imgB64=null;$('thumb').src='';$('img-strip').classList.remove('on');$('ibtn').classList.remove('on');updateBtn();}
 
-/* ── DOM / UI helpers ── */
-/** Append a chat bubble; content=null shows animated typing dots */
-function addMsg(role,content){const wrap=document.getElementById('msgs'),d=document.createElement('div');d.className=`msg ${role}`;const av=document.createElement('div');av.className=`av ${role}`;av.textContent=role==='user'?'👤':'🤖';const b=document.createElement('div');b.className=`bub ${role}`;b.innerHTML=content===null?'<div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>':role==='user'?'':md(content);if(content!==null&&role==='user')b.textContent=content;d.append(av,b);wrap.appendChild(d);scroll();return b;}
-/** Append a user bubble containing an inline image + optional caption */
-function addImgMsg(b64,caption){const wrap=document.getElementById('msgs'),d=document.createElement('div');d.className='msg user';const av=document.createElement('div');av.className='av user';av.textContent='👤';const b=document.createElement('div');b.className='bub user';b.innerHTML=`<img src="${b64}" class="img-preview"/>`;if(caption){const t=document.createElement('div');t.textContent=caption;b.appendChild(t);}d.append(av,b);wrap.appendChild(d);scroll();}
-/** Update bot bubble text during/after SSE stream; cur=true shows blinking cursor */
-function updBot(b,t,cur){b.innerHTML=md(t)+(cur?'<span class="cur"></span>':'');scroll();}
-/** Reset chat pane and show welcome empty-state */
-function resetMsgs(){document.getElementById('msgs').innerHTML='';clearImg();const e=document.getElementById('empty')||Object.assign(document.getElementById('mwrap').appendChild(document.createElement('div')),{id:'empty'});e.innerHTML='<div class="e-icon">🩺</div><div class="e-title">How can I help you?</div><p class="e-sub">Describe your symptoms or ask any health question and I\'ll do my best to help.</p><p class="e-note">⚠️ MediBot provides general health info only. Always consult a licensed physician for diagnosis and treatment.</p>';}
-function setTop(t,s){document.getElementById('tb-title').textContent=t||'MediBot — Medical Assistant';document.getElementById('tb-sid').textContent=s||'';}
-function scroll(){const w=document.getElementById('mwrap');w.scrollTop=w.scrollHeight;}
-function toggleSb(){const s=document.getElementById('sb'),b=document.getElementById('sbt');s.classList.toggle('off');b.classList.toggle('show',s.classList.contains('off'));}
-function resizeTa(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,160)+'px';}
-/** Enable send button only when there's text/image and not currently streaming */
-function updateBtn(){const ok=(document.getElementById('ui').value.trim()||imgB64)&&!streaming;document.getElementById('send').className=ok?'on':'off';}
-function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
-function toast(msg){const t=document.createElement('div');t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1c2535;border:1px solid #253346;color:#e8eef5;padding:8px 16px;border-radius:8px;font-size:13px;z-index:200';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
-/** Minimal Markdown → HTML: bold, italic, code, headers, lists, hr, line breaks */
-function md(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>').replace(/^---+$/gm,'<hr>').replace(/^\d+\. (.+)$/gm,'<li class="ol">$1</li>').replace(/^[-*] (.+)$/gm,'<li>$1</li>').replace(/(<li class="ol">.*<\/li>\n?)+/g,'<ol>$&</ol>').replace(/ class="ol"/g,'').replace(/(<li>(?!.*class=).*<\/li>\n?)+/g,'<ul>$&</ul>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');}
-/** HTML-escape for injecting untrusted strings into innerHTML */
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+/* ── DOM helpers ── */
+function resetMsgs(showWelcome=true){
+  $('msgs').innerHTML='';clearImg();
+  $('empty')?.remove();
+  if(showWelcome){
+    const e=Object.assign($('mwrap').appendChild(document.createElement('div')),{id:'empty'});
+    e.innerHTML='<div class="e-icon">🩺</div><div class="e-title">How can I help you?</div><p class="e-sub">Describe your symptoms or ask any health question.</p><p class="e-note">⚠️ MediBot provides general health info only. Always consult a licensed physician for diagnosis and treatment.</p>';
+  }
+}
+
+function addMsg(role,content){
+  const wrap=$('msgs'),d=document.createElement('div');d.className=`msg ${role}`;
+  const av=document.createElement('div');av.className=`av ${role}`;av.textContent=role==='user'?'👤':'🤖';
+  const b=document.createElement('div');b.className=`bub ${role}`;
+  if(content===null){
+    b.innerHTML='<div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  } else if(role==='user'){
+    const imgMatch=content.match(/^\[IMG:(data:image\/[^;]+;base64,[\s\S]+?)\]\n?([\s\S]*)$/);
+    if(imgMatch){
+      const img=document.createElement('img');
+      img.src=imgMatch[1];img.className='img-preview';b.appendChild(img);
+      const cap=imgMatch[2].trim();
+      if(cap){const t=document.createElement('div');t.textContent=cap;b.appendChild(t);}
+    } else {
+      b.textContent=content;
+    }
+  } else {
+    b.innerHTML=md(content);
+  }
+  d.append(av,b);wrap.appendChild(d);scroll();return b;
+}
+
+function addImgMsg(b64,caption){
+  const wrap=$('msgs'),d=document.createElement('div');d.className='msg user';
+  const av=document.createElement('div');av.className='av user';av.textContent='👤';
+  const b=document.createElement('div');b.className='bub user';
+  b.innerHTML=`<img src="${b64}" class="img-preview"/>`;
+  if(caption){const t=document.createElement('div');t.textContent=caption;b.appendChild(t);}
+  d.append(av,b);wrap.appendChild(d);scroll();
+}
+
+function updBot(b,t,cur){
+  if(cur){b.textContent=t;const c=document.createElement('span');c.className='cur';b.appendChild(c);}
+  else b.innerHTML=md(t);
+  scroll();
+}
+
+/* ── Markdown renderer ── */
+function md(t){
+  const lines=t.split('\n'),out=[];let ul=false,ol=false;
+  const close=()=>{if(ul){out.push('</ul>');ul=false;}if(ol){out.push('</ol>');ol=false;}};
+  for(let raw of lines){
+    let l=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+             .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+             .replace(/\*(.+?)\*/g,'<em>$1</em>')
+             .replace(/`(.+?)`/g,'<code>$1</code>');
+    if(/^---+$/.test(l.trim())){close();out.push('<hr>');continue;}
+    const h=l.match(/^#{1,3} (.+)$/);if(h){close();out.push(`<p><strong>${h[1]}</strong></p>`);continue;}
+    const bl=l.match(/^<strong>(.+)<\/strong>$/);if(bl){close();out.push(`<p><strong>${bl[1]}</strong></p>`);continue;}
+    const o=l.match(/^\d+\.\s+(.+)$/);if(o){if(ul){out.push('</ul>');ul=false;}if(!ol){out.push('<ol>');ol=true;}out.push(`<li>${o[1]}</li>`);continue;}
+    const u=l.match(/^(?:[-*•]|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)\s+(.+)$/u);if(u){if(ol){out.push('</ol>');ol=false;}if(!ul){out.push('<ul>');ul=true;}out.push(`<li>${u[1]}</li>`);continue;}
+    if(!l.trim()){close();out.push('<br>');continue;}
+    close();out.push(`<p>${l}</p>`);
+  }
+  close();return out.join('');
+}
 </script>
 </body>
 </html>

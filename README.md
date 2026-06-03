@@ -1,26 +1,60 @@
 # 🩺 MediBot — AI Medical Assistant
 
-> ⚠️ **Work in Progress** — CLI fully functional. FastAPI + Web UI integration in progress.
+MediBot is a **RAG-based conversational medical assistant** built with LangChain, Groq LLM, FAISS vector search, and SQLite-powered session memory. It responds like a knowledgeable friend — warm, clear, and medically grounded — not like a textbook.
 
-MediBot is a **RAG-based conversational medical assistant** built with LangChain, Groq LLM, FAISS vector search, and SQLite-powered session memory. It responds like a knowledgeable friend — warm, clear, and helpful — not like a medical textbook.
+> ⚠️ **Disclaimer:** MediBot is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.
+
+---
+
+## ✨ Features
+
+- AI-powered medical Q&A with RAG (context-aware answers from medical PDFs)
+- Voice input — speak your question, Whisper transcribes it automatically
+- Image analysis — attach a skin condition, X-ray, or wound photo
+- Real-time streaming responses (word-by-word SSE)
+- Markdown-formatted answers with bullets, headings, and sections
+- Persistent chat history — searchable and resumable sessions
+- User authentication with cookie-based sessions
 
 ---
 
 ## 🧠 How It Works
 
 ```
-User Input (text / voice / image)
-         ↓
-FAISS Vector Store  →  Retrieve relevant medical context
-         ↓
-Groq LLM (LLaMA 3) →  Generate warm, helpful response
-         ↓
-SQLite Memory       →  Persist full conversation history
+User Input  (text / voice / image)
+        ↓
+Intent Check  →  Small-talk? Skip retrieval. Medical query? Continue.
+        ↓
+FAISS Vector Store  →  Retrieve top-5 relevant medical context chunks
+        ↓
+Groq LLM (LLaMA 3.3 70B)  →  Generate structured, formatted response
+        ↓
+SQLite Memory  →  Persist full conversation history per session
+        ↓
+FastAPI + SSE  →  Stream response token-by-token to the browser
 ```
 
 ---
 
-## 🗂️ Project Structure
+## 🛠️ Tech Stack
+
+| Component | Technology |
+|---|---|
+| LLM | Groq — LLaMA 3.3 70B Versatile |
+| Vision | Groq — LLaMA 4 Scout 17B |
+| Voice (STT) | Groq — Whisper Large v3 |
+| Embeddings | HuggingFace — `all-MiniLM-L6-v2` |
+| Vector Store | FAISS (top-5 similarity retrieval) |
+| Memory | SQLite + LangChain `SQLChatMessageHistory` |
+| RAG Framework | LangChain |
+| Backend | FastAPI + SSE streaming |
+| Frontend | Vanilla HTML / CSS / JS |
+| Auth | Cookie-based sessions (hashed passwords) |
+| Package Manager | uv |
+
+---
+
+## 📂 Project Structure
 
 ```
 MediBot/
@@ -29,27 +63,28 @@ MediBot/
 │   │   ├── raw/                    # Source medical PDFs (add your own)
 │   │   ├── processed/              # Auto-generated chunks (not tracked)
 │   │   └── vector_store/           # FAISS index (pre-built, ready to use)
-│   ├── db/                         # SQLite chat history (runtime, not tracked)
+│   ├── db/                         # Runtime databases — auto-created, not tracked
 │   ├── services/
 │   │   ├── build_index.py          # PDF → chunks → FAISS pipeline
 │   │   ├── chat_history.py         # SQLite session management
 │   │   ├── cli.py                  # CLI interface (text + voice + image)
-│   │   ├── media_handler.py        # Voice recording & image analysis (Groq)
-│   │   ├── prompts.py              # MediBot system prompt
-│   │   └── rag_pipeline.py         # RAG chain + Groq LLM setup
+│   │   ├── media_handler.py        # Voice (Whisper) + image analysis (Vision)
+│   │   ├── prompts.py              # MediBot system prompt + vision prompt
+│   │   └── rag_pipeline.py         # RAG chain + small-talk bypass + LLM setup
 │   └── config.py                   # Paths and model configuration
 ├── frontend/
-│   └── index.html                  # Web UI (SSE streaming, voice, image upload)
-├── main.py                         # FastAPI server (in progress)
-├── .env.example                    # Copy this → .env and add your keys
+│   ├── index.html                  # Main chat UI
+│   └── login.html                  # Login page
+├── main.py                         # FastAPI server (auth, sessions, streaming)
+├── users.json                      # Created automatically on first run (not tracked)
+├── .env.example                    # Copy → .env and add your API keys
 ├── requirements.txt
-├── pyproject.toml
 └── README.md
 ```
 
 ---
 
-## ⚙️ Setup Instructions
+## 🚀 Setup Instructions
 
 ### 1. Clone the repository
 
@@ -60,18 +95,16 @@ cd MediBot
 
 ### 2. Create a virtual environment
 
-**Using `uv` (recommended):**
 ```bash
+# Using uv (recommended)
 uv venv
-.venv\Scripts\activate        # Windows
 source .venv/bin/activate     # Mac/Linux
-```
+.venv\Scripts\activate        # Windows
 
-**Using standard Python:**
-```bash
+# OR using standard Python
 python -m venv .venv
-.venv\Scripts\activate        # Windows
 source .venv/bin/activate     # Mac/Linux
+.venv\Scripts\activate        # Windows
 ```
 
 ### 3. Install dependencies
@@ -85,12 +118,13 @@ pip install -r requirements.txt      # using pip
 ### 4. Set up environment variables
 
 ```bash
-copy .env.example .env       # Windows
-cp .env.example .env         # Mac/Linux
+cp .env.example .env     # Mac/Linux
+copy .env.example .env   # Windows
 ```
 
 Open `.env` and add your API keys:
-```
+
+```env
 GROQ_API_KEY=your_groq_key_here
 HUGGINGFACE_API_TOKEN=your_huggingface_token_here
 ```
@@ -98,26 +132,48 @@ HUGGINGFACE_API_TOKEN=your_huggingface_token_here
 > 🔑 Groq key (free): https://console.groq.com  
 > 🔑 HuggingFace token (free): https://huggingface.co/settings/tokens
 
-### 5. Build the knowledge base *(skip if using pre-built FAISS index)*
+### 5. Build the knowledge base *(skip if using the pre-built FAISS index)*
+
+Add your medical PDFs to `backend/data/raw/`, then run:
 
 ```bash
 python backend/services/build_index.py
 ```
 
-> Only needed if you add your own PDFs to `backend/data/raw/`.  
-> The pre-built FAISS vector store is already included.
-
 ### 6. Run MediBot
+
+```bash
+python main.py
+```
+
+The browser opens automatically at `http://localhost:8000/login`.
+
+---
+
+## 🌐 Web Interface
+
+- **Text chat** — describe your symptoms or ask any health question
+- **Voice input** — click the microphone and speak; MediBot transcribes and responds
+- **Image upload** — attach a medical image with an optional follow-up question
+- **Session sidebar** — all past conversations saved, searchable, and resumable
+- **Streaming** — answers stream word-by-word in real time
+
+### Authentication
+
+- A default `admin` account is created automatically on first run.  
+  Default credentials: `admin` / `medibot123` — **change this before sharing or deploying.**
+- Sign-up is available from the login page to create additional accounts.
+- Sessions are cookie-based and expire after 8 hours.
+
+> 🔒 `users.json` and all database files are excluded from version control. They are created at runtime and contain private user data.
+
+---
+
+## 💻 CLI Mode
 
 ```bash
 python backend/services/cli.py
 ```
-
----
-
-## 💬 CLI Usage
-
-Once running, you can chat by typing normally, or use these commands:
 
 ```
 Commands:
@@ -132,75 +188,21 @@ Commands:
   exit                 → Quit
 ```
 
-### Text Input
-Just type your question and press Enter:
-```
-You: I have a headache and fever, what should I do?
-```
-
-### Voice Input
-Say `voice` and speak into your microphone:
-```
-You: voice        ← records for 60 seconds (stop speaking anytime)
-You: voice 10     ← records for exactly 10 seconds
-```
-> Requires a working microphone. Powered by Groq Whisper (speech-to-text).
-
-### Image Input
-Give the full file path to any image on your computer:
-```
-You: image C:\Users\YourName\Desktop\rash.jpg
-You: image /home/yourname/pictures/xray.png
-```
-> Works with images from any folder — no need to copy them into the project.  
-> You'll be asked if you have a specific question about the image.
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|---|---|
-| LLM | Groq API — LLaMA 3 |
-| Embeddings | HuggingFace Sentence Transformers |
-| Vector Store | FAISS |
-| Memory | SQLite + LangChain |
-| Voice Input | Groq Whisper (speech-to-text) |
-| Image Input | Groq Vision model |
-| Orchestration | LangChain RAG chain |
-| Frontend | HTML / CSS / JS (SSE streaming) |
-| API | FastAPI *(in progress)* |
-| Package Manager | uv |
-
 ---
 
 ## 📌 Project Status
 
 - [x] PDF ingestion and chunking pipeline
-- [x] FAISS vector store creation
-- [x] RAG chain with Groq LLM
-- [x] Custom MediBot personality prompt
-- [x] SQLite session memory (search, load, delete, stats)
-- [x] CLI — text input
-- [x] CLI — voice input (Groq Whisper)
-- [x] CLI — image input (Groq Vision)
-- [x] Frontend UI — chat, session sidebar, SSE streaming, voice recorder, image uploader
-- [ ] FastAPI backend (`main.py`) — *in progress*
-- [ ] Deployment — *planned*
+- [x] FAISS vector store with semantic retrieval
+- [x] RAG chain with Groq LLM (LLaMA 3.3 70B)
+- [x] SQLite session memory (concurrent-safe)
+- [x] CLI — text, voice, and image input
+- [x] FastAPI backend — sessions and SSE streaming
+- [x] Web UI — chat, sidebar, voice recorder, image upload
+- [x] User authentication and session management
 
 ---
 
-## 🔑 Environment Variables
+## 📄 License
 
-| Variable | Description |
-|---|---|
-| `GROQ_API_KEY` | Groq API key — free at console.groq.com |
-| `HUGGINGFACE_API_TOKEN` | HuggingFace token — free at huggingface.co/settings/tokens |
-
----
-
-## ⚠️ Disclaimer
-
-MediBot provides **educational health information only**.  
-It is **not** a substitute for professional medical advice, diagnosis, or treatment.  
-Always consult a qualified healthcare professional for medical concerns.
+This project is licensed under the [MIT License](LICENSE).

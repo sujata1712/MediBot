@@ -21,6 +21,9 @@ backend/db/*
 !backend/data/vector_store/.gitkeep
 !backend/db/.gitkeep
 
+# USER DATA (runtime, not for repo)
+users.json
+
 # IDE
 .vscode/
 .idea/

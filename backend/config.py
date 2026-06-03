@@ -17,8 +17,8 @@ CHUNKS_FILE_PATH = os.path.join(PROCESSED_DATA_PATH, "chunks.pkl")
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 # LLM
-LLM_MODEL_NAME = "llama-3.1-8b-instant"
-LLM_TEMPERATURE = 0.5
+LLM_MODEL_NAME = "llama-3.3-70b-versatile"
+LLM_TEMPERATURE = 0.3
 LLM_MAX_TOKENS = 1024
 
 # Vision Model
@@ -30,7 +30,6 @@ VOICE_MODEL = "whisper-large-v3"
 
 # ---------------------------- RETRIEVAL CONFIG ---------------------------
 RETRIEVAL_K = 5
-MEMORY_WINDOW = 6
 
 # ---------------------------- DATABASE CONFIG ---------------------------
 DB_DIR = os.path.join(BASE_DIR, "db")
